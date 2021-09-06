@@ -9,7 +9,7 @@ group 'com.volmit'
 version '1.0.0'
 def apiVersion = '1.17'
 def name = getRootProject().getName() // Defined in settings.gradle
-def main = 'com.volmit.phantom.plugin.PhantomPlugin'
+def main = 'com.volmit.phantom.plugin.PhantomAPIPlugin'
 
 // ADD YOURSELF AS A NEW LINE IF YOU WANT YOUR OWN BUILD TASK GENERATED
 // ==============================================================
@@ -136,6 +136,7 @@ shadowJar {
         include(dependency('net.kyori:'))
         include(dependency('art.arcane:Amulet:'))
         include(dependency('systems.manifold:'))
+        include(dependency('com.google.dagger:'))
     }
 }
 
@@ -150,11 +151,13 @@ dependencies {
     implementation 'org.spigotmc:spigot-api:1.17.1-R0.1-SNAPSHOT'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
+    annotationProcessor 'com.google.dagger:dagger-compiler:2.38.1'
 
     // Shaded
+    implementation 'com.google.dagger:dagger:2.38.1'
     implementation 'systems.manifold:manifold-ext-rt:2021.1.16'
     implementation 'systems.manifold:manifold-rt:2021.1.16'
-    implementation 'art.arcane:Amulet:1.0.2'
+    implementation 'art.arcane:Amulet:1.0.5'
     implementation 'com.dfsek:Paralithic:0.4.0'
     implementation 'io.papermc:paperlib:1.0.5'
     implementation "net.kyori:adventure-text-minimessage:4.1.0-SNAPSHOT"
