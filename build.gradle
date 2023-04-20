@@ -1,196 +1,36 @@
 plugins {
     id 'java'
-    id 'java-library'
-    id "io.freefair.lombok" version "6.1.0"
-    id "com.github.johnrengelman.shadow" version "7.0.0"
+    id 'io.freefair.lombok' version '6.3.0'
 }
 
-group 'com.volmit'
-version '1.0.0'
-def apiVersion = '1.17'
-def name = getRootProject().getName() // Defined in settings.gradle
-def main = 'com.volmit.phantom.plugin.PhantomAPIPlugin'
-
-// ADD YOURSELF AS A NEW LINE IF YOU WANT YOUR OWN BUILD TASK GENERATED
-// ==============================================================
-registerCustomOutputTask('Cyberpwn', 'C://Users/cyberpwn/Documents/development/server/plugins', name)
-registerCustomOutputTask('Psycho', 'D://Dan/MinecraftDevelopment/server/plugins', name)
-registerCustomOutputTask('ArcaneArts', 'C://Users/arcane/Documents/development/server/plugins', name)
-registerCustomOutputTask('Coco', 'C:/Users/sjoer/Documents/Development/MCServer/plugins', name)
-registerCustomOutputTask('Strange', 'D://Servers/1.17 Test Server/plugins', name)
-// ==============================================================
-
-def registerCustomOutputTask(name, path, plugin) {
-    tasks.register('build' + name, Copy) {
-        group('development')
-        outputs.upToDateWhen { false }
-        dependsOn ':shadowJar'
-        from(file('build/libs/' + plugin + '-' + version + '-all.jar'))
-        into(file(path))
-        rename { String fileName ->
-            fileName.replace(plugin + '-' + version + '-all.jar', plugin + ".jar")
-        }
-    }
-}
-
-/**
- * Gradle is weird sometimes, we need to delete the plugin yml from the build folder to actually filter properly.
- */
-file(jar.archiveFile.get().getAsFile().getParentFile().getParentFile().getParentFile().getAbsolutePath() + '/build/resources/main/plugin.yml').delete()
-
-/**
- * Expand properties into plugin yml
- */
-processResources {
-    filesMatching('**/plugin.yml') {
-        expand(
-                'name': name.toString(),
-                'version': version.toString(),
-                'main': main.toString(),
-                'apiversion': apiVersion.toString()
-        )
-    }
-}
-
-configurations {
-    testImplementation.extendsFrom annotationProcessor
-}
-
-jar {
-    manifest {
-        attributes('Contains-Sources':'java,class')
-    }
-}
+group = "art.arcane"
+version = "1.0-SNAPSHOT"
 
 repositories {
-    maven {
-        url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
-        content {
-            includeGroup 'org.spigotmc'
-        }
-    }
-    maven {
-        url 'https://papermc.io/repo/repository/maven-public/'
-        content {
-            includeGroup 'io.papermc'
-        }
-    }
-    maven {
-        url 'https://repo.extendedclip.com/content/repositories/placeholderapi/'
-        content {
-            includeGroup 'me.clip'
-        }
-    }
-    maven {
-        url 'https://oss.sonatype.org/content/repositories/snapshots/'
-        content {
-            includeGroup 'net.kyori'
-        }
-    }
-    maven {
-        url 'https://repo.jeff-media.de/maven2'
-        content {
-            includeGroup 'de.jeff_media'
-        }
-    }
-    maven { url 'https://jitpack.io' }
-    maven {
-        url 'https://repo.codemc.io/repository/maven-releases'
-        content {
-            includeGroup 'com.dfsek'
-        }
-    }
-    mavenCentral()
     mavenLocal()
-    maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
-    maven {
-        allowInsecureProtocol true
-        url 'http://archive.arcane.art/repository/arcane'
-        content {
-            includeGroup 'org.bukkit.craftbukkit'
-            includeGroup 'io.th0rgal'
-        }
-    }
-
-    // Uncomment this line if the build is failing because of missing dependencies
-    // Its slow but it will resolve any cached dependencies until we can find an alternative repo
-    // maven { allowInsecureProtocol true, url 'http://archive.arcane.art/repository/arcane'}
-}
-
-/**
- * We need parameter meta for the decree command system
- */
-compileJava {
-    options.compilerArgs << '-parameters'
-}
-
-/**
- * Configure Iris for shading
- */
-shadowJar {
-    minimize()
-    append("plugin.yml")
-    dependencies {
-        include(dependency('io.papermc:paperlib'))
-        include(dependency('com.dfsek:Paralithic'))
-        include(dependency('net.kyori:'))
-        include(dependency('art.arcane:Amulet:'))
-        include(dependency('systems.manifold:'))
-        include(dependency('com.google.dagger:'))
-    }
-}
-
-configurations.all {
-    resolutionStrategy.cacheChangingModulesFor 60, 'minutes'
-    resolutionStrategy.cacheDynamicVersionsFor 60, 'minutes'
+    maven { url "https://arcanearts.jfrog.io/artifactory/archives" }
+    mavenCentral()
 }
 
 dependencies {
-    // Provided or Classpath
-    annotationProcessor 'systems.manifold:manifold-ext:2021.1.16'
-    implementation 'org.spigotmc:spigot-api:1.17.1-R0.1-SNAPSHOT'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.2'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
-    annotationProcessor 'com.google.dagger:dagger-compiler:2.38.1'
-
-    // Shaded
-    implementation 'com.google.dagger:dagger:2.38.1'
-    implementation 'systems.manifold:manifold-ext-rt:2021.1.16'
-    implementation 'systems.manifold:manifold-rt:2021.1.16'
-    implementation 'art.arcane:Amulet:1.0.5'
-    implementation 'com.dfsek:Paralithic:0.4.0'
-    implementation 'io.papermc:paperlib:1.0.5'
-    implementation "net.kyori:adventure-text-minimessage:4.1.0-SNAPSHOT"
-    implementation "net.kyori:adventure-platform-bukkit:4.0.0-SNAPSHOT"
-    implementation 'net.kyori:adventure-api:4.8.1'
-
-    // Dynamically Loaded
-    implementation 'io.timeandspace:smoothie-map:2.0.2'
-    implementation 'it.unimi.dsi:fastutil:8.5.4'
-    implementation 'com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru:1.4.2'
-    implementation 'org.zeroturnaround:zt-zip:1.14'
-    implementation 'com.google.code.gson:gson:2.8.8'
-    implementation 'org.ow2.asm:asm:9.2'
-    implementation 'com.google.guava:guava:30.1.1-jre'
-    implementation 'bsf:bsf:2.4.0'
-    implementation 'rhino:js:1.7R2'
-    implementation 'com.github.ben-manes.caffeine:caffeine:3.0.3'
-    implementation 'org.apache.commons:commons-lang3:3.12.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
+    implementation 'org.zeroturnaround:zt-zip:1.15'
+    implementation 'org.bitbucket.mstrobel:procyon-core:0.6.0'
+    implementation 'org.bitbucket.mstrobel:procyon-compilertools:0.6.0'
+    implementation 'org.bitbucket.mstrobel:procyon-reflection:0.6.0'
+    implementation 'fr.inria.gforge.spoon:spoon-core:10.2.0'
+    implementation 'com.google.code.gson:gson:2.10'
+    implementation 'art.arcane:Curse:23.4.4'
+    implementation 'art.arcane:Spatial:22.11.1'
+    implementation 'art.arcane:Chrono:22.9.10'
+    implementation 'art.arcane:MultiBurst:22.9.2'
+    implementation 'art.arcane:NBTSon:22.9.2'
+    implementation 'org.spigotmc:spigot-api:1.19.4-R0.1-SNAPSHOT'
+    implementation 'io.papermc.paper:paper-api:1.19.4-R0.1-SNAPSHOT'
+    implementation 'me.carleslc.Simple-YAML:Simple-Yaml:1.8.3'
 }
 
-test {
+tasks.test {
     useJUnitPlatform()
-}
-
-if (JavaVersion.current() != JavaVersion.VERSION_1_8 &&
-        sourceSets.main.allJava.files.any {it.name == "module-info.java"}) {
-    tasks.withType(JavaCompile) {
-        // if you DO define a module-info.java file:
-        options.compilerArgs += ['-Xplugin:Manifold', '--module-path', it.classpath.asPath]
-    }
-} else {
-    tasks.withType(JavaCompile) {
-        // If you DO NOT define a module-info.java file:
-        options.compilerArgs += ['-Xplugin:Manifold']
-    }
 }
