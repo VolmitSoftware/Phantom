@@ -31,6 +31,34 @@ public class PluginUtil {
                 .orElseGet(() -> allClasses(PhantomAPIPlugin.getInstance()));
     }
 
+    public static Plugin whodis() {
+        try {
+            throw new RuntimeException("Who are you?");
+        }
+
+        catch(Throwable e) {
+            Set<Plugin> potentials = new HashSet<>();
+
+            for(StackTraceElement i : e.getStackTrace()) {
+                try {
+                    potentials.add(getOwningPlugin(Class.forName(i.getClassName())));
+                }
+
+                catch(Throwable ignored) {
+
+                }
+            }
+
+            potentials.remove(PhantomAPIPlugin.getInstance());
+
+            if(potentials.isEmpty()) {
+                return PhantomAPIPlugin.getInstance();
+            }
+
+            return potentials.iterator().next();
+        }
+    }
+
     public static Stream<CursedComponent> allClasses(Plugin p) {
         return Curse.all(p.getClass());
     }
